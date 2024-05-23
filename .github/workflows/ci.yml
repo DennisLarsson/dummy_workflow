@@ -31,9 +31,13 @@ jobs:
     - name: Login to GitHub Container Registry
       run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+    - name: Convert repository name to lowercase
+      id: repo-name-lowercase
+      run: echo "::set-output name=repo::$(echo "${{ github.repository }}" | awk '{print tolower($0)}')"
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ toLower(github.repository) }}/my-image-name:latest
+        tags: ghcr.io/${{ steps.repo-name-lowercase.outputs.repo }}/my-image-name:latest
